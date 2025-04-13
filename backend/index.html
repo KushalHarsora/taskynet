@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager API Documentation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0 5vw;
+      background-color: #f9f9f9;
+    }
+
+    h1,
+    h2 {
+      color: #333;
+    }
+
+    .route {
+      background-color: #e0e0e0;
+      padding: 10px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+
+    code {
+      background-color: #cfccff;
+      color: #000000;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    .example {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-left: 4px solid #5c6bc0;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 style="background-color: #4caf50; text-align: center; color: #fff;">Task Manager API Documentation</h1>
+
+  <h2>/api/auth</h2>
+
+  <div class="route">
+    <h3>POST /api/auth/login</h3>
+    <p><strong>Function:</strong> Authenticates a user with email and password. Returns a JWT token.</p>
+    <div class="example">
+      <p><strong>Example Body (JSON):</strong></p>
+      <pre><code>{
+  "email": "user@example.com",
+  "password": "password123"
+}</code></pre>
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "token": "jwt-token-here",
+  "user": {
+    "id": "userId",
+    "email": "user@example.com"
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <h2>/api/tasks</h2>
+
+  <div class="route">
+    <h3>GET /api/tasks</h3>
+    <p><strong>Function:</strong> Retrieves all tasks for the logged-in user. Requires JWT in headers.</p>
+    <div class="example">
+      <p><strong>Example Response:</strong></p>
+      <pre><code>[
+  {
+    "id": "task1",
+    "title": "Buy groceries",
+    "completed": false,
+    "createdAt": "2025-04-13T12:00:00Z"
+  }
+]</code></pre>
+    </div>
+  </div>
+
+  <div class="route">
+    <h3>POST /api/tasks</h3>
+    <p><strong>Function:</strong> Adds a new task for the user. Requires JWT.</p>
+    <div class="example">
+      <p><strong>Example Body:</strong></p>
+      <pre><code>{
+  "title": "Finish assignment"
+}</code></pre>
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "message": "Task created successfully"
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="route">
+    <h3>PATCH /api/tasks/:id/complete</h3>
+    <p><strong>Function:</strong> Marks a task as completed. Requires JWT.</p>
+    <div class="example">
+      <p><strong>Example Request:</strong></p>
+      <pre><code>PATCH /api/tasks/12345/complete</code></pre>
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "message": "Task marked as completed"
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="route">
+    <h3>DELETE /api/tasks/:id</h3>
+    <p><strong>Function:</strong> Deletes a task by ID. Requires JWT.</p>
+    <div class="example">
+      <p><strong>Example Request:</strong></p>
+      <pre><code>DELETE /api/tasks/12345</code></pre>
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "message": "Task deleted successfully"
+}</code></pre>
+    </div>
+  </div>
+
+</body>
+
+</html>
