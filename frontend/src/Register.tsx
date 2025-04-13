@@ -55,7 +55,7 @@ const Register = () => {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            const response: AxiosResponse = await axios.post(`${domain}api/auth/register`, values, {
+            const response: AxiosResponse = await axios.post(`${domain}/api/auth/register`, values, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -77,7 +77,7 @@ const Register = () => {
             if (axios.isAxiosError(error) && error.response) {
                 const data = error.response;
                 if (data.status === 401) {
-                    toast.error("User Not Found", {
+                    toast.error(data.data.message || "User Already exits kindly login", {
                         style: {
                             "backgroundColor": "#FADBD8",
                             "color": "black",
@@ -86,9 +86,8 @@ const Register = () => {
                         duration: 2500
                     })
                     form.reset();
-                    router('/register');
                 } else if (data.status === 400) {
-                    toast.error("Invalid Credentials", {
+                    toast.error(data.data.message || "Failed to create user", {
                         style: {
                             "backgroundColor": "#FADBD8",
                             "color": "black",
@@ -96,7 +95,7 @@ const Register = () => {
                         },
                         duration: 2500
                     });
-                    form.resetField('password');
+                    form.reset();
                 } else {
                     toast.error("Some Error Occured", {
                         style: {
@@ -113,6 +112,7 @@ const Register = () => {
                     invert: false,
                     duration: 2500
                 });
+                form.reset();
             }
         }
     }

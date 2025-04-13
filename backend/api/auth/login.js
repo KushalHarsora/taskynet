@@ -9,7 +9,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/", async (req, res) => {
   const values = req.body;
-  console.log("Login values:", values);
 
   try {
 
