@@ -10,11 +10,11 @@ const userSchema = new mongoose.Schema({
 const taskSchema = new mongoose.Schema({
   taskName: { type: String, required: true },
   createdAt: { type: Date, required: true },
-  updatedAt: { type: Date, required: true },
+  color: { type: String, required: true },
   status: { type: Boolean, required: true },
 });
 
 const User = mongoose.model("User", userSchema);
 const Task = mongoose.model("Task", taskSchema);
 
-module.exports = { User, Task };
+module.exports = { User };
