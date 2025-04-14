@@ -31,14 +31,160 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Task } from "@/lib/types"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import { Label } from "../ui/label"
-import { Textarea } from "../ui/textarea"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "../ui/dialog"
+import { Textarea } from "../ui/textarea";
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
+} from "../ui/form"
+import axios, { AxiosResponse } from "axios"
+import { domain } from "@/lib/consts"
+import { toast } from "sonner"
+
+// Form Schema
+const formSchema = z.object({
+    taskName: z.string().min(2, {
+        message: "Task must be minimum two characters long"
+    }),
+    color: z.string()
+});
+
+const handleDelete = async (id: string) => {
+    try {
+        const email = window.localStorage.getItem("email");
+        const response: AxiosResponse = await axios.delete(`${domain}/api/task/delete/${email}`, {
+            data: {
+                id: id,
+            },
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = response.data;
+
+        if (response.status === 200) {
+            toast.success(data.message || "Task deleted successfully", {
+                style: {
+                    "backgroundColor": "#D5F5E3",
+                    "color": "black",
+                    "border": "none"
+                },
+                duration: 1500
+            });
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
+
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            const data = error.response;
+            if (data.status === 404) {
+                toast.error("User Not Found. Kindly relogin", {
+                    style: {
+                        "backgroundColor": "#FADBD8",
+                        "color": "black",
+                        "border": "none"
+                    },
+                    duration: 2500
+                })
+            } else {
+                toast.error("Some Error Occured", {
+                    style: {
+                        "backgroundColor": "#FADBD8",
+                        "color": "black",
+                        "border": "none"
+                    },
+                    duration: 2500
+                });
+            }
+        } else {
+            toast.error("An unexpected error occurred. Please try again.", {
+                invert: false,
+                duration: 2500
+            });
+        }
+    }
+}
+
+const handleComplete = async (id: string) => {
+    try {
+        const email = window.localStorage.getItem("email");
+        const response: AxiosResponse = await axios.post(`${domain}/api/task/complete/${email}`, { id: id }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = response.data;
+
+        if (response.status === 200) {
+            toast.success(data.message || "Task marked as completed", {
+                style: {
+                    "backgroundColor": "#D5F5E3",
+                    "color": "black",
+                    "border": "none"
+                },
+                duration: 1500
+            });
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
+
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            const data = error.response;
+            if (data.status === 404) {
+                toast.error("User Not Found. Kindly relogin", {
+                    style: {
+                        "backgroundColor": "#FADBD8",
+                        "color": "black",
+                        "border": "none"
+                    },
+                    duration: 2500
+                })
+            } else {
+                toast.error("Some Error Occured", {
+                    style: {
+                        "backgroundColor": "#FADBD8",
+                        "color": "black",
+                        "border": "none"
+                    },
+                    duration: 2500
+                });
+            }
+        } else {
+            toast.error("An unexpected error occurred. Please try again.", {
+                invert: false,
+                duration: 2500
+            });
+        }
+    }
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const columns: ColumnDef<Task>[] = [
     {
-        accessorKey: "task",
+        accessorKey: "taskName",
         header: ({ column }) => {
             return (
                 <Button
@@ -50,12 +196,74 @@ export const columns: ColumnDef<Task>[] = [
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("task")}</div>,
+        cell: ({ row }) => <div className=" capitalize">{row.original.taskName}</div>,
+    },
+    {
+        accessorKey: "Created At",
+        header: () => {
+            return (
+                <Button
+                    variant="ghost"
+                >
+                    Created At
+                </Button>
+            )
+        },
+        cell: ({ row }) =>
+            <div className=" capitalize">
+                {new Date(row.original.createdAt).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                })}
+            </div>,
+    },
+    {
+        accessorKey: "Status",
+        header: () => {
+            return (
+                <Button
+                    variant="ghost"
+                >
+                    Status
+                </Button>
+            )
+        },
+        cell: ({ row }) =>
+            <div
+                className={`capitalize px-2 py-1 rounded-md text-white text-center max-w-[120px] ${row.original.status ? "bg-green-500" : "bg-red-500"}`}
+            >
+                {row.original.status ? "Completed" : "Not Completed"}
+            </div>,
+    },
+    {
+        accessorKey: "Type",
+        header: () => (
+            <Button variant="ghost">
+                Type
+            </Button>
+        ),
+        cell: ({ row }) => {
+            const color = row.original.color?.startsWith("#") ? row.original.color : `#${row.original.color}`;
+            return (
+                <div className=" max-w-[50px] flex justify-center items-center gap-2">
+                    <div
+                        className="w-12 h-4 rounded-full border"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                    />
+                </div>
+            );
+        }
     },
     {
         id: "actions",
         enableHiding: false,
-        cell: () => {
+        cell: ({ row }) => {
+
+            const id = row.original._id;
+
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -65,7 +273,8 @@ export const columns: ColumnDef<Task>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Mark as Completed</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleComplete(id)}>Mark as Completed</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(id)}>Delete Task</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -74,6 +283,74 @@ export const columns: ColumnDef<Task>[] = [
 ]
 
 export function TaskTable({ data }: { data: Task[] }) {
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            taskName: "",
+            color: "#f2d312",
+        }
+    });
+
+    const submitForm = async (values: z.infer<typeof formSchema>) => {
+        const email = window.localStorage.getItem("email");
+        try {
+            const response: AxiosResponse = await axios.post(`${domain}/api/task/add`, { data: values, email: email }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const data = response.data;
+
+            if (response.status === 200) {
+                toast.success(data.message || "Task Added", {
+                    style: {
+                        "backgroundColor": "#D5F5E3",
+                        "color": "black",
+                        "border": "none"
+                    },
+                    duration: 1500
+                });
+                form.reset();
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1500);
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                const data = error.response;
+                if (data.status === 404) {
+                    toast.error("User Not Found. Kindly relogin and add task", {
+                        style: {
+                            "backgroundColor": "#FADBD8",
+                            "color": "black",
+                            "border": "none"
+                        },
+                        duration: 2500
+                    })
+                    form.reset();
+                } else {
+                    toast.error("Some Error Occured", {
+                        style: {
+                            "backgroundColor": "#FADBD8",
+                            "color": "black",
+                            "border": "none"
+                        },
+                        duration: 2500
+                    });
+                    form.reset();
+                }
+            } else {
+                toast.error("An unexpected error occurred. Please try again.", {
+                    invert: false,
+                    duration: 2500
+                });
+            }
+        }
+    }
+
+
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -106,9 +383,9 @@ export function TaskTable({ data }: { data: Task[] }) {
             <div className="flex justify-between items-center py-4">
                 <Input
                     placeholder="Search tasks..."
-                    value={(table.getColumn("task")?.getFilterValue() as string) ?? ""}
+                    value={(table.getColumn("taskName")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("task")?.setFilterValue(event.target.value)
+                        table.getColumn("taskName")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
@@ -127,22 +404,40 @@ export function TaskTable({ data }: { data: Task[] }) {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">
-                                        Task
-                                    </Label>
-                                    <Textarea className="col-span-3" />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="username" className="text-right">
-                                        Color
-                                    </Label>
-                                    <Input type="color" className="col-span-3 h-10 w-full p-0 border-none cursor-pointer bg-transparent" />
-                                </div>
+                                <Form {...form}>
+                                    <form onSubmit={form.handleSubmit(submitForm)} className=" space-y-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="taskName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Task</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="color"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Task</FormLabel>
+                                                    <FormControl>
+                                                        <Input className="col-span-3 h-10 w-full p-0 border-none cursor-pointer bg-transparent" type="color" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <DialogFooter>
+                                            <Button type="submit">Add Task</Button>
+                                        </DialogFooter>
+                                    </form>
+                                </Form>
                             </div>
-                            <DialogFooter>
-                                <Button type="submit">Add Task</Button>
-                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
                     <DropdownMenu>
@@ -165,7 +460,7 @@ export function TaskTable({ data }: { data: Task[] }) {
                                                 column.toggleVisibility(!!value)
                                             }
                                         >
-                                            {column.id}
+                                            {column.id === "taskName" ? "Tasks" : column.id}
                                         </DropdownMenuCheckboxItem>
                                     )
                                 })}
@@ -216,7 +511,7 @@ export function TaskTable({ data }: { data: Task[] }) {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    No Tasks Availabe.
                                 </TableCell>
                             </TableRow>
                         )}

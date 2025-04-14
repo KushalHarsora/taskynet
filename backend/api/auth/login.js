@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
       maxAge: 24 * 60 * 60 * 1000,
-    }).json({ message: "Login successful", name: user.name }).status(200);
+    }).json({ message: "Login successful", name: user.name, email: user.email }).status(200);
 
   } catch (err) {
     console.error("Login error:", err);

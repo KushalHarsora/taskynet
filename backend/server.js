@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const loginRoutes = require("./api/auth/login");
-const registerRoutes = require("./api/auth/register")
+const registerRoutes = require("./api/auth/register");
+const logoutRoutes = require("./api/auth/logout");
+const taskRoutes = require("./api/task");
 const mongoose = require('mongoose');
 const cookieParser = require("cookie-parser");
 
@@ -28,7 +30,9 @@ mongoose.connect(process.env.MONGO_URL, {
 });
 
 app.use("/api/auth/login", loginRoutes);
+app.use("/api/auth/logout", logoutRoutes);
 app.use("/api/auth/register", registerRoutes);
+app.use('/api/task', taskRoutes);
 
 
 app.get("/", (req, res) => {

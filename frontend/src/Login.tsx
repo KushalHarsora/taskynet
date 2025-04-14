@@ -59,6 +59,7 @@ const Login = () => {
             const data = response.data;
             if (response.status === 200) {
                 window.localStorage.setItem("name", data.name);
+                window.localStorage.setItem("email", data.email);
                 toast.success(data.message || "Login successful!", {
                     style: {
                         "backgroundColor": "#D5F5E3",
