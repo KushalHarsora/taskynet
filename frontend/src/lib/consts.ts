@@ -1,1 +1,1 @@
-export const domain = "https://taskynet.onrender.com/";
+export const domain = "https://taskynet.onrender.com";
