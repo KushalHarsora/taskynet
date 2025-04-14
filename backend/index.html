@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Task Manager API Documentation</title>
   <style>
     body {
@@ -13,26 +12,21 @@
       padding: 0 5vw;
       background-color: #f9f9f9;
     }
-
-    h1,
-    h2 {
+    h1, h2 {
       color: #333;
     }
-
     .route {
       background-color: #e0e0e0;
       padding: 10px;
       margin: 20px 0;
       border-radius: 5px;
     }
-
     code {
       background-color: #cfccff;
-      color: #000000;
+      color: #000;
       padding: 5px;
       border-radius: 3px;
     }
-
     .example {
       background-color: #f0f0f0;
       padding: 10px;
@@ -49,63 +43,99 @@
 
   <div class="route">
     <h3>POST /api/auth/login</h3>
-    <p><strong>Function:</strong> Authenticates a user with email and password. Returns a JWT token.</p>
+    <p><strong>Function:</strong> Authenticates a user with email and password. Sets an auth cookie on success.</p>
     <div class="example">
-      <p><strong>Example Body (JSON):</strong></p>
+      <p><strong>Example Body:</strong></p>
       <pre><code>{
   "email": "user@example.com",
   "password": "password123"
 }</code></pre>
       <p><strong>Example Response:</strong></p>
       <pre><code>{
-  "token": "jwt-token-here",
-  "user": {
-    "id": "userId",
-    "email": "user@example.com"
-  }
+  "message": "Login successful",
+  "name": "John Doe",
+  "email": "user@example.com"
 }</code></pre>
     </div>
   </div>
 
-  <h2>/api/tasks</h2>
-
   <div class="route">
-    <h3>GET /api/tasks</h3>
-    <p><strong>Function:</strong> Retrieves all tasks for the logged-in user. Requires JWT in headers.</p>
-    <div class="example">
-      <p><strong>Example Response:</strong></p>
-      <pre><code>[
-  {
-    "id": "task1",
-    "title": "Buy groceries",
-    "completed": false,
-    "createdAt": "2025-04-13T12:00:00Z"
-  }
-]</code></pre>
-    </div>
-  </div>
-
-  <div class="route">
-    <h3>POST /api/tasks</h3>
-    <p><strong>Function:</strong> Adds a new task for the user. Requires JWT.</p>
+    <h3>POST /api/auth/register</h3>
+    <p><strong>Function:</strong> Registers a new user with name, email, and password.</p>
     <div class="example">
       <p><strong>Example Body:</strong></p>
       <pre><code>{
-  "title": "Finish assignment"
+  "name": "John Doe",
+  "email": "user@example.com",
+  "password": "password123"
 }</code></pre>
       <p><strong>Example Response:</strong></p>
       <pre><code>{
-  "message": "Task created successfully"
+  "message": "User created successfully",
+  "name": "John Doe",
+  "email": "user@example.com"
 }</code></pre>
     </div>
   </div>
 
   <div class="route">
-    <h3>PATCH /api/tasks/:id/complete</h3>
-    <p><strong>Function:</strong> Marks a task as completed. Requires JWT.</p>
+    <h3>POST /api/auth/logout</h3>
+    <p><strong>Function:</strong> Logs out the user by clearing the auth cookie.</p>
     <div class="example">
-      <p><strong>Example Request:</strong></p>
-      <pre><code>PATCH /api/tasks/12345/complete</code></pre>
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "message": "Logged out successfully"
+}</code></pre>
+    </div>
+  </div>
+
+  <h2>/api/task</h2>
+
+  <div class="route">
+    <h3>GET /api/task/:email</h3>
+    <p><strong>Function:</strong> Retrieves all tasks for a specific user by email.</p>
+    <div class="example">
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "tasks": [
+    {
+      "taskName": "Buy groceries",
+      "color": "#f2d312",
+      "status": false,
+      "createdAt": "2025-04-13T12:00:00Z"
+    }
+  ]
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="route">
+    <h3>POST /api/task/add</h3>
+    <p><strong>Function:</strong> Adds a new task to a user's task list.</p>
+    <div class="example">
+      <p><strong>Example Body:</strong></p>
+      <pre><code>{
+  "email": "user@example.com",
+  "data": {
+    "taskName": "Finish homework",
+    "color": "#ff0000"
+  }
+}</code></pre>
+      <p><strong>Example Response:</strong></p>
+      <pre><code>{
+  "message": "Task Added"
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="route">
+    <h3>POST /api/task/complete/:email</h3>
+    <p><strong>Function:</strong> Marks a task as completed for a given user.</p>
+    <div class="example">
+      <p><strong>Example Body:</strong></p>
+      <pre><code>{
+  "id": "taskId123"
+}</code></pre>
       <p><strong>Example Response:</strong></p>
       <pre><code>{
   "message": "Task marked as completed"
@@ -114,11 +144,13 @@
   </div>
 
   <div class="route">
-    <h3>DELETE /api/tasks/:id</h3>
-    <p><strong>Function:</strong> Deletes a task by ID. Requires JWT.</p>
+    <h3>DELETE /api/task/delete/:email</h3>
+    <p><strong>Function:</strong> Deletes a task from a user's task list.</p>
     <div class="example">
-      <p><strong>Example Request:</strong></p>
-      <pre><code>DELETE /api/tasks/12345</code></pre>
+      <p><strong>Example Body:</strong></p>
+      <pre><code>{
+  "id": "taskId123"
+}</code></pre>
       <p><strong>Example Response:</strong></p>
       <pre><code>{
   "message": "Task deleted successfully"
@@ -127,5 +159,4 @@
   </div>
 
 </body>
-
 </html>
